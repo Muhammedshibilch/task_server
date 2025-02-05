@@ -15,7 +15,6 @@ exports.registerController = async (req, res) => {
             return res.status(406).json("User already exists... Please login.");
         }
 
-        // ✅ Hash password before saving
         const saltRounds = 10;
         const hashedPassword = await bcrypt.hash(password, saltRounds);
 
@@ -23,7 +22,7 @@ exports.registerController = async (req, res) => {
             username, 
             email, 
             number, 
-            password: hashedPassword,  // ✅ Store the hashed password
+            password: hashedPassword,  
             dob: "", gender: "", aadhar: "", address: "", state: "", district: "", pincode: "", parentName: ""
         });
 
@@ -54,20 +53,17 @@ exports.loginController = async (req, res) => {
 
         console.log(`User found: ${existingUser.email}`);
 
-        // ✅ Check if stored password is hashed
         if (!existingUser.password.startsWith("$2b$")) {
             console.log("Stored password is not hashed! Re-registering is required.");
             return res.status(500).json("Server Error: Stored password is not hashed. Please register again.");
         }
 
-        // ✅ Compare hashed password
         const isPasswordValid = await bcrypt.compare(password, existingUser.password);
         if (!isPasswordValid) {
             console.log("Password mismatch!");
             return res.status(401).json("Invalid email or password.");
         }
 
-        // ✅ Generate JWT Token
         const token = jwt.sign(
             { userId: existingUser._id },
             process.env.JWTPASSWORD,
@@ -96,19 +92,19 @@ exports.loginController = async (req, res) => {
 // Update User
 exports.editUserController = async (req, res) => {
     console.log("Inside editUserController");
-    const userId = req.userId; // JWT decoded userId
+    const userId = req.userId; 
     const { username, email, number, dob, gender, aadhar, address, state, district, pincode, parentName } = req.body;
     
     try {
       const updatedUser = await users.findByIdAndUpdate(
-        { _id: userId }, // Update user by their ID
+        { _id: userId }, 
         {
           username, email, number, dob, gender, aadhar, address, state, district, pincode, parentName
         },
-        { new: true } // Return the updated user
+        { new: true } 
       );
   
-      res.status(200).json(updatedUser); // Return updated user
+      res.status(200).json(updatedUser); 
     } catch (err) {
       res.status(401).json({ message: "Error updating user", error: err });
     }
@@ -116,23 +112,22 @@ exports.editUserController = async (req, res) => {
 
   
 //   get userdetails
-// Get User Profile
+
 exports.getUserProfile = async (req, res) => {
-    const userId = req.userId; // From jwtMiddleware
+    const userId = req.userId; 
     try {
-        const user = await users.findById(userId).select('-password'); // Exclude password from response
+        const user = await users.findById(userId).select('-password'); 
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
-        // Send the full user profile
         res.status(200).json({
             username: user.username,
             email: user.email,
             number: user.number,
-            dob: user.dob,       // Date of Birth
-            gender: user.gender, // Gender
-            aadhar: user.aadhar, // Aadhar
-            address: user.address // Address
+            dob: user.dob,       
+            gender: user.gender, 
+            aadhar: user.aadhar, 
+            address: user.address 
         });
     } catch (error) {
         res.status(500).json({ message: error.message });

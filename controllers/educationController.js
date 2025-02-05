@@ -2,7 +2,7 @@ const educations = require('../model/educationModel');
 
 exports.addEducationController = async (req, res) => {
   console.log("Inside addEducationController");
-  const userId = req.userId; // Ensure this is correctly set by jwtMiddleware
+  const userId = req.userId; 
   console.log('User ID:', userId);
   console.log('Request Body:', req.body);
 
@@ -38,12 +38,11 @@ exports.addEducationController = async (req, res) => {
 
 
 
-// ✅ Get all education details
 exports.getAllEducationController = async (req, res) => {
     console.log("Inside getAllEducationController");
     
     try {
-        const userId = req.userId; // Assuming authentication middleware sets req.userId
+        const userId = req.userId;
         const educationData = await educations.find({ userId });
 
         if (educationData.length === 0) {
